@@ -1,0 +1,114 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>静态表格</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="../../../static/layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="../../../static/layuiadmin/style/admin.css" media="all">
+</head>
+<body>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>组件</cite></a>
+        <a><cite>静态表格</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">上钩鱼儿</div>
+                <div class="layui-card-body">
+                    <table class="layui-table">
+                        <colgroup>
+                            <col width="100">
+                            <col width="100">
+                            <col width="100">
+                            <col width="200">
+
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th>IP</th>
+                            <th>时间</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {volist name="fishhooks" id="fishhook"}
+                        <tr>
+                            <td>{$fishhook.fish_ip}</td>
+                            <td>{$fishhook.fish_hooktime|date="Y-m-d H:i:s"}</td>
+                            <td>{$fishhook.fish_action}</td>
+                            <td>
+                                {if $fishhook.isread==0}
+                                <button class="layui-btn layui-btn layui-btn-xs" onclick="readed({$fishhook.id})">我已知晓</button>
+                                {/if}
+                                <button class="layui-btn layui-btn-danger layui-btn-xs" onclick="del({$fishhook.id})">删除</button>
+                            </td>
+
+                        </tr>
+                        {/volist}
+                        </tbody>
+                    </table>
+                    <div class="page">
+                        <div>
+                            {$fishhooks|raw}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="../../../static/layuiadmin/layui/layui.js"></script>
+<script>
+    layui.config({
+        base: '../../../static/layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index','layer'],function(){
+        layer = layui.layer;
+        $ = layui.jquery;
+    });
+    // 删除
+    function del(id){
+        layer.confirm('确定要删除吗？', {
+            icon:3,
+            btn: ['确定','取消']
+        }, function(){
+            $.post('/index.php/admins/gethook/delete',{'id':id,'__token__':'{$Request.token}'},function(res){
+                if(res.code>0){
+                    layer.alert(res.msg,{icon:2});
+                }else{
+                    layer.msg(res.msg);
+                    setTimeout(function(){window.location.reload();},1000);
+                }
+            },'json');
+        });
+    }
+    function readed(id){
+        // window.location.href="/fishlog/public/index.php/admins/gethook/readed?id="+id;
+        $.post('/index.php/admins/gethook/readed',{'id':id},function(res){
+            if(res.code>0){
+                layer.alert(res.msg,{icon:2});
+            }else{
+                layer.msg(res.msg);
+                setTimeout(function(){window.location.reload();},1000);
+            }
+        },'json');
+    }
+</script>
+</body>
+</html>
